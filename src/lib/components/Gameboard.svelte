@@ -1,5 +1,23 @@
-<script>
-	export let frame;
+<script lang="ts">
+	interface Point {
+		x: number;
+		y: number;
+	}
+	interface Snake {
+		id: string;
+		name: string;
+		color: string;
+		body: Point[];
+	}
+	interface Frame {
+		width: number;
+		height: number;
+		turn: number;
+		snakes: Snake[];
+		food: Point[];
+		hazards: Point[];
+	}
+	export let frame: Frame;
 
 	const CELL_SIZE = 20;
 	const CELL_SPACING = 4;
@@ -14,7 +32,7 @@
 	$: svgWidth = CELL_SIZE * frame.width + CELL_SPACING * frame.width + CELL_SPACING;
 	$: svgHeight = CELL_SIZE * frame.height + CELL_SPACING * frame.height + CELL_SPACING;
 
-	function svgCirclePropsAtCoords(x, y) {
+	function svgCirclePropsAtCoords(x: number, y: number) {
 		const rect = svgRectPropsAtCoords(x, y);
 		return {
 			cx: rect.x + CELL_SIZE / 2,
@@ -22,7 +40,7 @@
 		};
 	}
 
-	function svgRectPropsAtCoords(x, y) {
+	function svgRectPropsAtCoords(x: number, y: number) {
 		return {
 			x: CELL_SPACING + x * (CELL_SIZE + CELL_SPACING),
 			y: svgHeight - (y + 1) * (CELL_SIZE + CELL_SPACING),
@@ -31,7 +49,7 @@
 		};
 	}
 
-	function polylinePoints(snake) {
+	function polylinePoints(snake: Snake) {
 		const points = [];
 		for (let i = 0; i < snake.body.length; i++) {
 			const { cx, cy } = svgCirclePropsAtCoords(snake.body[i].x, snake.body[i].y);
@@ -54,7 +72,8 @@
 			points={polylinePoints(snake)}
 			stroke-width={CELL_SIZE}
 			stroke={snake.color}
-			stroke-linecap="square"
+			stroke-linecap="round"
+			stroke-linejoin="round"
 			fill="transparent"
 		/>
 	{/each}
