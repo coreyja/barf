@@ -30,6 +30,15 @@
 			height: CELL_SIZE
 		};
 	}
+
+	function polylinePoints(snake) {
+		const points = [];
+		for (let i = 0; i < snake.body.length; i++) {
+			const { cx, cy } = svgCirclePropsAtCoords(snake.body[i].x, snake.body[i].y);
+			points.push(`${cx},${cy}`);
+		}
+		return points.join(' ');
+	}
 </script>
 
 <svg class="gameboard" viewBox="0 0 {svgWidth} {svgHeight}">
@@ -41,14 +50,13 @@
 	{/each}
 	<!-- Snakes -->
 	{#each frame.snakes as snake}
-		{#each snake.body as body, i}
-			<rect
-				id={`snake-${snake.id}-${i}`}
-				class="snake"
-				fill={snake.color}
-				{...svgRectPropsAtCoords(body.x, body.y)}
-			/>
-		{/each}
+		<polyline
+			points={polylinePoints(snake)}
+			stroke-width={CELL_SIZE}
+			stroke={snake.color}
+			stroke-linecap="square"
+			fill="transparent"
+		/>
 	{/each}
 	<!-- Hazards -->
 	{#each frame.hazards as hazard, i}
