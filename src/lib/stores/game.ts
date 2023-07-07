@@ -2,11 +2,10 @@ import { writable } from 'svelte/store';
 
 const rawGameEvents = [];
 
-export const gameInfo = writable({});
 export const gameFrames = writable([]);
 
-function mapGameEventToFrame(e) {
-    console.assert(e.Type === 'frame');
+function mapGameEventToFrame(rawGameInfo, rawGameEvent) {
+    console.assert(rawGameEvent.Type === 'frame');
 
     const mapCoords = function (coords) {
         return { x: coords.X, y: coords.Y };
@@ -22,6 +21,7 @@ function mapGameEventToFrame(e) {
             head: snake.HeadType,
             tail: snake.TailType,
             // Frame specific
+            body: snake.Body.map(mapCoords),
             health: snake.Health,
             latency: snake.Latency
         }
@@ -29,10 +29,12 @@ function mapGameEventToFrame(e) {
     }
 
     return {
-        turn: e.Data.Turn,
-        snakes: e.Data.Snakes.map(mapSnake),
-        food: e.Data.Food.map(mapCoords),
-        hazards: e.Data.Hazards.map(mapCoords)
+        width: rawGameInfo.Width,
+        height: rawGameInfo.Height,
+        turn: rawGameEvent.Data.Turn,
+        snakes: rawGameEvent.Data.Snakes.map(mapSnake),
+        food: rawGameEvent.Data.Food.map(mapCoords),
+        hazards: rawGameEvent.Data.Hazards.map(mapCoords)
     }
 };
 
@@ -41,15 +43,13 @@ export function loadGameStore(engineHost: string, gameID: string) {
     const infoHttpUrl = `https://${engineHost}/games/${gameID}`;
     const eventsWsUrl = `wss://${engineHost}/games/${gameID}/events`;
 
-    console.debug(`[board] loading game ${gameID} from ${engineHost}`);
-
+    console.debug(`[board] load game ${gameID} from ${engineHost}`);
     fetch(infoHttpUrl)
         .then((x) => x.json())
         .then((gameData) => {
-            gameInfo.set(gameData.Game);
+            // gameInfo.set(mapGameInfo(gameData.Game));
 
             console.debug(`[board] opening game events websocket`);
-
             const ws = new WebSocket(eventsWsUrl);
             ws.onmessage = (event) => {
                 const parsedEvent = JSON.parse(event.data);
@@ -57,7 +57,8 @@ export function loadGameStore(engineHost: string, gameID: string) {
 
                 if (parsedEvent.Type === 'frame') {
                     gameFrames.update($gameFrames => {
-                        $gameFrames.push(mapGameEventToFrame(parsedEvent));
+                        $gameFrames.push(mapGameEventToFrame(gameData.Game, parsedEvent));
+                        $gameFrames.sort((a, b) => a.turn - b.turn);
                         return $gameFrames;
                     })
                 } else if (parsedEvent.Type === 'game_end') {
