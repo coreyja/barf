@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Gameboard styles */
+svg.gameboard .food {
+    filter: drop-shadow(0.1em 0.1em 0.05em rgba(0, 0, 0, 0.3));
+}

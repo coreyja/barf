@@ -14,28 +14,29 @@
 	$: svgWidth = CELL_SIZE * frame.width + CELL_SPACING * frame.width + CELL_SPACING;
 	$: svgHeight = CELL_SIZE * frame.height + CELL_SPACING * frame.height + CELL_SPACING;
 
-	function coordToSVG(c) {
-		return CELL_SPACING + c * (CELL_SIZE + CELL_SPACING);
+	function svgCirclePropsAtCoords(x, y) {
+		const rect = svgRectPropsAtCoords(x, y);
+		return {
+			cx: rect.x + CELL_SIZE / 2,
+			cy: rect.y + CELL_SIZE / 2
+		};
+	}
+
+	function svgRectPropsAtCoords(x, y) {
+		return {
+			x: CELL_SPACING + x * (CELL_SIZE + CELL_SPACING),
+			y: svgHeight - (y + 1) * (CELL_SIZE + CELL_SPACING),
+			width: CELL_SIZE,
+			height: CELL_SIZE
+		};
 	}
 </script>
-
-<p class="text-center">
-	Board: {frame.width} x {frame.height}, Turn: {frame.turn}, SVG: {svgWidth} x {svgHeight}
-</p>
 
 <svg class="gameboard" viewBox="0 0 {svgWidth} {svgHeight}">
 	<!-- Grid -->
 	{#each { length: frame.width } as _, x}
 		{#each { length: frame.height } as _, y}
-			<rect
-				id={`grid-${x}-${y}`}
-				class="grid"
-				x={coordToSVG(x)}
-				y={coordToSVG(y)}
-				width={CELL_SIZE}
-				height={CELL_SIZE}
-				fill={CELL_COLOR}
-			/>
+			<rect id={`grid-${x}-${y}`} class="grid" fill={CELL_COLOR} {...svgRectPropsAtCoords(x, y)} />
 		{/each}
 	{/each}
 	<!-- Snakes -->
@@ -44,11 +45,8 @@
 			<rect
 				id={`snake-${snake.id}-${i}`}
 				class="snake"
-				x={coordToSVG(body.x)}
-				y={coordToSVG(body.y)}
-				width={CELL_SIZE}
-				height={CELL_SIZE}
 				fill={snake.color}
+				{...svgRectPropsAtCoords(body.x, body.y)}
 			/>
 		{/each}
 	{/each}
@@ -57,12 +55,9 @@
 		<rect
 			id={`hazard-${i}`}
 			class="hazard"
-			x={coordToSVG(hazard.x)}
-			y={coordToSVG(hazard.y)}
-			width={CELL_SIZE}
-			height={CELL_SIZE}
 			fill={HAZARD_COLOR}
 			fill-opacity={HAZARD_OPACITY}
+			{...svgRectPropsAtCoords(hazard.x, hazard.y)}
 		/>
 	{/each}
 	<!-- Food -->
@@ -70,16 +65,13 @@
 		<circle
 			id={`food-${i}`}
 			class="food"
-			cx={coordToSVG(food.x) + CELL_SIZE / 2}
-			cy={coordToSVG(food.y) + CELL_SIZE / 2}
 			r={FOOD_RADIUS}
 			fill={FOOD_COLOR}
+			{...svgCirclePropsAtCoords(food.x, food.y)}
 		/>
 	{/each}
 </svg>
 
-<style>
-	svg.gameboard .food {
-		filter: drop-shadow(0.1em 0.1em 0.05em rgba(0, 0, 0, 0.3));
-	}
-</style>
+<p class="text-center">
+	Board: {frame.width} x {frame.height}, Turn: {frame.turn}, SVG: {svgWidth} x {svgHeight}
+</p>
