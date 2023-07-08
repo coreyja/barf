@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Point, Frame } from '$lib/stores/game';
+	import type { Frame, Point, Snake } from '$lib/stores/game';
 	import { fetchCustomizationSvgDef } from '$lib/stores/customizations';
 
 	const CELL_SIZE = 20;
@@ -36,11 +36,44 @@
 	}
 
 	function svgPolylinePropsForSnakeBody(body: Point[]) {
+		const [head, tail] = [body[0], body[body.length - 1]];
 		const bodyCenterPoints = body.slice(1, -1).map((p) => {
 			const { cx, cy } = svgCirclePropsAtPoint(p);
 			return `${cx},${cy}`;
 		});
 		return { points: bodyCenterPoints.join(' ') };
+	}
+
+	function svgTransformForSnakeHead(snake: Snake): string {
+		const [head, neck] = snake.body.slice(0, 2);
+		if (head.x < neck.x) {
+			// Moving left
+			return 'scale(-1,1) translate(-100, 0)';
+		} else if (head.y > neck.y) {
+			// Moving up
+			return 'rotate(-90, 50, 50)';
+		} else if (head.y < neck.y) {
+			// Moving down
+			return 'rotate(90, 50, 50)';
+		}
+		// Moving right
+		return '';
+	}
+
+	function svgTransformForSnakeTail(snake: Snake): string {
+		const [preTail, tail] = snake.body.slice(-2);
+		if (preTail.x > tail.x) {
+			// Moving right
+			return 'scale(-1,1) translate(-100,0)';
+		} else if (preTail.y > tail.y) {
+			// Moving up
+			return 'scale(-1,1) translate(-100,0) rotate(90, 50, 50)';
+		} else if (preTail.y < tail.y) {
+			// Moving down
+			return 'scale(-1,1) translate(-100,0) rotate(-90, 50, 50)';
+		}
+		// Moving left
+		return '';
 	}
 </script>
 
@@ -71,9 +104,11 @@
 			/>
 			<!-- Head -->
 			<svg viewBox="0 0 100 100" fill={snake.color} {...svgRectPropsAtPoint(snake.body[0])}>
-				{#await fetchCustomizationSvgDef('head', snake.head) then headSvgDef}
-					{@html headSvgDef}
-				{/await}
+				<g transform={svgTransformForSnakeHead(snake)}>
+					{#await fetchCustomizationSvgDef('head', snake.head) then headSvgDef}
+						{@html headSvgDef}
+					{/await}
+				</g>
 			</svg>
 			<!-- Tail -->
 			<svg
@@ -81,9 +116,11 @@
 				fill={snake.color}
 				{...svgRectPropsAtPoint(snake.body[snake.body.length - 1])}
 			>
-				{#await fetchCustomizationSvgDef('tail', snake.tail) then tailSvgDef}
-					{@html tailSvgDef}
-				{/await}
+				<g transform={svgTransformForSnakeTail(snake)}>
+					{#await fetchCustomizationSvgDef('tail', snake.tail) then tailSvgDef}
+						{@html tailSvgDef}
+					{/await}
+				</g>
 			</svg>
 		</g>
 	{/each}
