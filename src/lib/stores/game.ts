@@ -1,40 +1,67 @@
 import { writable } from 'svelte/store';
 
+export type Point = {
+    x: number,
+    y: number
+}
+
+export type Snake = {
+    id: string,
+    name: string,
+    author: string,
+    color: string,
+    head: string,
+    tail: string,
+    health: number,
+    latency: number,
+    body: Point[]
+}
+
+export type Frame = {
+    turn: number,
+    width: number,
+    height: number,
+    snakes: Snake[],
+    food: Point[],
+    hazards: Point[]
+}
+
+
 const rawGameEvents = [];
 
 export const gameFrames = writable([]);
 
-function mapGameEventToFrame(rawGameInfo, rawGameEvent) {
-    console.assert(rawGameEvent.Type === 'frame');
+function rawFrameEventToFrame(rawGameInfo, rawFrameEvent): Frame {
+    console.assert(rawFrameEvent.Type === 'frame');
 
-    const mapCoords = function (coords) {
+    const rawCoordsToPoint = function (coords): Point {
         return { x: coords.X, y: coords.Y };
     }
 
-    const mapSnake = function (snake) {
+    const rawSnakeToSnake = function (rawSnake): Snake {
         return {
             // Fixed properties
-            id: snake.ID,
-            name: snake.Name,
-            author: snake.Author,
-            color: snake.Color,
-            head: snake.HeadType,
-            tail: snake.TailType,
+            id: rawSnake.ID,
+            name: rawSnake.Name,
+            author: rawSnake.Author,
+            color: rawSnake.Color,
+            head: rawSnake.HeadType,
+            tail: rawSnake.TailType,
             // Frame specific
-            body: snake.Body.map(mapCoords),
-            health: snake.Health,
-            latency: snake.Latency
+            body: rawSnake.Body.map(rawCoordsToPoint),
+            health: rawSnake.Health,
+            latency: rawSnake.Latency
         }
 
     }
 
     return {
+        turn: rawFrameEvent.Data.Turn,
         width: rawGameInfo.Width,
         height: rawGameInfo.Height,
-        turn: rawGameEvent.Data.Turn,
-        snakes: rawGameEvent.Data.Snakes.map(mapSnake),
-        food: rawGameEvent.Data.Food.map(mapCoords),
-        hazards: rawGameEvent.Data.Hazards.map(mapCoords)
+        snakes: rawFrameEvent.Data.Snakes.map(rawSnakeToSnake),
+        food: rawFrameEvent.Data.Food.map(rawCoordsToPoint),
+        hazards: rawFrameEvent.Data.Hazards.map(rawCoordsToPoint)
     }
 };
 
@@ -57,8 +84,12 @@ export function loadGameStore(engineHost: string, gameID: string) {
 
                 if (parsedEvent.Type === 'frame') {
                     gameFrames.update($gameFrames => {
-                        $gameFrames.push(mapGameEventToFrame(gameData.Game, parsedEvent));
-                        $gameFrames.sort((a, b) => a.turn - b.turn);
+                        $gameFrames.push(
+                            rawFrameEventToFrame(gameData.Game, parsedEvent)
+                        );
+                        $gameFrames.sort(
+                            (a: Frame, b: Frame) => a.turn - b.turn
+                        );
                         return $gameFrames;
                     })
                 } else if (parsedEvent.Type === 'game_end') {

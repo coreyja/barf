@@ -1,5 +1,7 @@
-<script>
-	export let frame;
+<script lang="ts">
+	import type { Point, Frame } from '$lib/stores/game';
+
+	export let frame: Frame;
 
 	const CELL_SIZE = 20;
 	const CELL_SPACING = 4;
@@ -14,28 +16,28 @@
 	$: svgWidth = CELL_SIZE * frame.width + CELL_SPACING * frame.width + CELL_SPACING;
 	$: svgHeight = CELL_SIZE * frame.height + CELL_SPACING * frame.height + CELL_SPACING;
 
-	function svgRectPropsAtCoords(x, y) {
+	function svgRectPropsAtPoint(p: Point) {
 		return {
-			// (x, y) is top left
-			x: CELL_SPACING + x * (CELL_SIZE + CELL_SPACING),
-			y: svgHeight - (y + 1) * (CELL_SIZE + CELL_SPACING),
+			// (x, y) should be the top left corner of the square
+			x: CELL_SPACING + p.x * (CELL_SIZE + CELL_SPACING),
+			y: svgHeight - (p.y + 1) * (CELL_SIZE + CELL_SPACING),
 			width: CELL_SIZE,
 			height: CELL_SIZE
 		};
 	}
 
-	function svgCirclePropsAtCoords(x, y) {
-		const rect = svgRectPropsAtCoords(x, y);
+	function svgCirclePropsAtPoint(p: Point) {
+		const rect = svgRectPropsAtPoint(p);
 		return {
 			cx: rect.x + CELL_SIZE / 2,
 			cy: rect.y + CELL_SIZE / 2
 		};
 	}
 
-	function svgPolylinePropsForSnakeBody(body) {
+	function svgPolylinePropsForSnakeBody(body: Point[]) {
 		const centerPoints = [];
 		for (let i = 0; i < body.length; i++) {
-			const { cx, cy } = svgCirclePropsAtCoords(body[i].x, body[i].y);
+			const { cx, cy } = svgCirclePropsAtPoint(body[i]);
 			centerPoints.push(`${cx},${cy}`);
 		}
 		return {
@@ -48,9 +50,15 @@
 	<!-- Grid -->
 	{#each { length: frame.width } as _, x}
 		{#each { length: frame.height } as _, y}
-			<rect id={`grid-${x}-${y}`} class="grid" fill={CELL_COLOR} {...svgRectPropsAtCoords(x, y)} />
+			<rect
+				id={`grid-${x}-${y}`}
+				class="grid"
+				fill={CELL_COLOR}
+				{...svgRectPropsAtPoint({ x: x, y: y })}
+			/>
 		{/each}
 	{/each}
+
 	<!-- Snakes -->
 	{#each frame.snakes as snake}
 		<g id={`snake-${snake.id}`} class="snake">
@@ -63,6 +71,7 @@
 			/>
 		</g>
 	{/each}
+
 	<!-- Hazards -->
 	{#each frame.hazards as hazard, i}
 		<rect
@@ -70,9 +79,10 @@
 			class="hazard"
 			fill={HAZARD_COLOR}
 			fill-opacity={HAZARD_OPACITY}
-			{...svgRectPropsAtCoords(hazard.x, hazard.y)}
+			{...svgRectPropsAtPoint(hazard)}
 		/>
 	{/each}
+
 	<!-- Food -->
 	{#each frame.food as food, i}
 		<circle
@@ -80,7 +90,7 @@
 			class="food"
 			r={FOOD_RADIUS}
 			fill={FOOD_COLOR}
-			{...svgCirclePropsAtCoords(food.x, food.y)}
+			{...svgCirclePropsAtPoint(food)}
 		/>
 	{/each}
 </svg>
