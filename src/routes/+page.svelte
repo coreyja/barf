@@ -1,6 +1,8 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
+	import type { Frame, Snake } from '$lib/stores/game';
 	import { gameFrames, loadGameStore } from '$lib/stores/game';
+	import { loadCustomizationSvg } from '$lib/stores/customizations';
 
 	import Gameboard from '$lib/components/Gameboard.svelte';
 	import PlaybackControls from '$lib/components/PlaybackControls.svelte';
@@ -10,17 +12,22 @@
 		loadGameStore('engine.battlesnake.com', '5db0ada9-7a45-4c53-9ce0-fadf19d741ae');
 	});
 
-	let currentFrame = null;
+	let currentFrame: null | Frame = null;
 	let currentFrameIndex = 0;
 
-	function setCurrentFrame(index) {
+	function setCurrentFrame(index: number) {
 		// TODO: DEEP COPY & TRANSFORM ???
 		currentFrame = $gameFrames[index];
 		currentFrameIndex = index;
 	}
 
-	// Load initial frame once game frames are ready
+	// Load initial frame and svgs once game frames are ready
 	$: if (!currentFrame && $gameFrames.length > 0) {
+		// Pre-load customizations
+		$gameFrames[0].snakes.forEach((snake: Snake) => {
+			loadCustomizationSvg('head', snake.head);
+			loadCustomizationSvg('tail', snake.tail);
+		});
 		setCurrentFrame(0);
 	}
 

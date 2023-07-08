@@ -72,7 +72,7 @@ export function loadGameStore(engineHost: string, gameID: string) {
 
     console.debug(`[board] load game ${gameID} from ${engineHost}`);
     fetch(infoHttpUrl)
-        .then((x) => x.json())
+        .then((response) => response.json())
         .then((gameData) => {
             // gameInfo.set(mapGameInfo(gameData.Game));
 

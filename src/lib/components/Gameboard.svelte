@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Point, Frame } from '$lib/stores/game';
+	import { customizationSvgDefinitions, getCustomizationId } from '$lib/stores/customizations';
 
 	const CELL_SIZE = 20;
 	const CELL_SPACING = 4;
@@ -35,13 +36,14 @@
 	}
 
 	function svgPolylinePropsForSnakeBody(body: Point[]) {
-		const centerPoints = [];
-		for (let i = 0; i < body.length; i++) {
+		const bodyCenterPoints: string[] = [];
+		// Intentionally skip the head and tail for now.
+		for (let i = 1; i < body.length - 1; i++) {
 			const { cx, cy } = svgCirclePropsAtPoint(body[i]);
-			centerPoints.push(`${cx},${cy}`);
+			bodyCenterPoints.push(`${cx},${cy}`);
 		}
 		return {
-			points: centerPoints.join(' ')
+			points: bodyCenterPoints.join(' ')
 		};
 	}
 </script>
@@ -70,6 +72,16 @@
 				fill="transparent"
 				{...svgPolylinePropsForSnakeBody(snake.body)}
 			/>
+			<svg viewBox="0 0 100 100" fill={snake.color} {...svgRectPropsAtPoint(snake.body[0])}>
+				{@html $customizationSvgDefinitions[getCustomizationId('head', snake.head)]}
+			</svg>
+			<svg
+				viewBox="0 0 100 100"
+				fill={snake.color}
+				{...svgRectPropsAtPoint(snake.body[snake.body.length - 1])}
+			>
+				{@html $customizationSvgDefinitions[getCustomizationId('tail', snake.tail)]}
+			</svg>
 		</g>
 	{/each}
 
