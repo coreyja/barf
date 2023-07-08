@@ -65,6 +65,7 @@
 			<polyline
 				stroke-width={CELL_SIZE}
 				stroke-linecap="square"
+				stroke-linejoin="round"
 				stroke={snake.color}
 				fill="transparent"
 				{...svgPolylinePropsForSnakeBody(snake.body)}
