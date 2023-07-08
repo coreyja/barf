@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Frame, Snake } from '$lib/stores/game';
+	import type { Frame } from '$lib/stores/game';
 	import { gameFrames, loadGameStore } from '$lib/stores/game';
-	import { loadCustomizationSvg } from '$lib/stores/customizations';
 
 	import Gameboard from '$lib/components/Gameboard.svelte';
 	import PlaybackControls from '$lib/components/PlaybackControls.svelte';
@@ -23,11 +22,6 @@
 
 	// Load initial frame and svgs once game frames are ready
 	$: if (!currentFrame && $gameFrames.length > 0) {
-		// Pre-load customizations
-		$gameFrames[0].snakes.forEach((snake: Snake) => {
-			loadCustomizationSvg('head', snake.head);
-			loadCustomizationSvg('tail', snake.tail);
-		});
 		setCurrentFrame(0);
 	}
 

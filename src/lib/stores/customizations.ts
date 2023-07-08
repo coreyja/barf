@@ -1,28 +1,18 @@
-import { get, writable } from 'svelte/store';
+const mediaCache: { [key: string]: string } = {};
 
-export const customizationSvgDefinitions = writable({});
+export async function fetchCustomizationSvgDef(type: string, name: string) {
+    const mediaPath = `snakes/${type}s/${name}.svg`;
 
-export function getCustomizationId(type: string, name: string) {
-    return `${type}-${name}`
-}
-
-export function loadCustomizationSvg(type: string, name: string) {
-    const id = getCustomizationId(type, name);
-    const loadedDefinitions = get(customizationSvgDefinitions);
-
-    if (!(id in loadedDefinitions)) {
-        const mediaURL = `https://media.battlesnake.com/snakes/${type}s/${name}.svg`;
-        fetch(mediaURL)
+    if (!(mediaPath in mediaCache)) {
+        mediaCache[mediaPath] = await fetch(`https://media.battlesnake.com/${mediaPath}`)
             .then((response) => response.text())
-            .then((rawSVG) => {
-                // We want to strip the outer <svg> tag so we can embed as symbol
-                const tempTemplate = document.createElement('template');
-                tempTemplate.innerHTML = rawSVG.trim();
-                customizationSvgDefinitions.update($current => {
-                    $current[id] = tempTemplate.content.firstChild.innerHTML;
-                    console.log('loaded ' + id);
-                    return $current;
-                });
+            .then((textSVG) => {
+                const tempElememt = document.createElement('template');
+                tempElememt.innerHTML = textSVG.trim()
+                console.log(`[board] loaded svg definition for ${mediaPath}`);
+                return tempElememt.content.firstChild.innerHTML;
             });
+
     }
+    return mediaCache[mediaPath];
 }
