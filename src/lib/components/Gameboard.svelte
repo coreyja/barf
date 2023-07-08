@@ -14,6 +14,16 @@
 	$: svgWidth = CELL_SIZE * frame.width + CELL_SPACING * frame.width + CELL_SPACING;
 	$: svgHeight = CELL_SIZE * frame.height + CELL_SPACING * frame.height + CELL_SPACING;
 
+	function svgRectPropsAtCoords(x, y) {
+		return {
+			// (x, y) is top left
+			x: CELL_SPACING + x * (CELL_SIZE + CELL_SPACING),
+			y: svgHeight - (y + 1) * (CELL_SIZE + CELL_SPACING),
+			width: CELL_SIZE,
+			height: CELL_SIZE
+		};
+	}
+
 	function svgCirclePropsAtCoords(x, y) {
 		const rect = svgRectPropsAtCoords(x, y);
 		return {
@@ -22,12 +32,14 @@
 		};
 	}
 
-	function svgRectPropsAtCoords(x, y) {
+	function svgPolylinePropsForSnakeBody(body) {
+		const centerPoints = [];
+		for (let i = 0; i < body.length; i++) {
+			const { cx, cy } = svgCirclePropsAtCoords(body[i].x, body[i].y);
+			centerPoints.push(`${cx},${cy}`);
+		}
 		return {
-			x: CELL_SPACING + x * (CELL_SIZE + CELL_SPACING),
-			y: svgHeight - (y + 1) * (CELL_SIZE + CELL_SPACING),
-			width: CELL_SIZE,
-			height: CELL_SIZE
+			points: centerPoints.join(' ')
 		};
 	}
 </script>
@@ -41,14 +53,15 @@
 	{/each}
 	<!-- Snakes -->
 	{#each frame.snakes as snake}
-		{#each snake.body as body, i}
-			<rect
-				id={`snake-${snake.id}-${i}`}
-				class="snake"
-				fill={snake.color}
-				{...svgRectPropsAtCoords(body.x, body.y)}
+		<g id={`snake-${snake.id}`} class="snake">
+			<polyline
+				stroke-width={CELL_SIZE}
+				stroke-linecap="square"
+				stroke={snake.color}
+				fill="transparent"
+				{...svgPolylinePropsForSnakeBody(snake.body)}
 			/>
-		{/each}
+		</g>
 	{/each}
 	<!-- Hazards -->
 	{#each frame.hazards as hazard, i}
