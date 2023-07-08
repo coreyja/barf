@@ -1,8 +1,6 @@
 <script lang="ts">
 	import type { Point, Frame } from '$lib/stores/game';
 
-	export let frame: Frame;
-
 	const CELL_SIZE = 20;
 	const CELL_SPACING = 4;
 	const CELL_COLOR = '#f1f1f1';
@@ -12,6 +10,8 @@
 
 	const HAZARD_COLOR = '#000000';
 	const HAZARD_OPACITY = 0.3;
+
+	export let frame: Frame;
 
 	$: svgWidth = CELL_SIZE * frame.width + CELL_SPACING * frame.width + CELL_SPACING;
 	$: svgHeight = CELL_SIZE * frame.height + CELL_SPACING * frame.height + CELL_SPACING;
@@ -54,7 +54,7 @@
 				id={`grid-${x}-${y}`}
 				class="grid"
 				fill={CELL_COLOR}
-				{...svgRectPropsAtPoint({ x: x, y: y })}
+				{...svgRectPropsAtPoint({ x, y })}
 			/>
 		{/each}
 	{/each}
