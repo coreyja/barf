@@ -2,9 +2,13 @@
 	import type { Frame, Point, Snake } from '$lib/stores/game';
 	import { fetchCustomizationSvgDef } from '$lib/stores/customizations';
 
+	// Grid sizing
 	const CELL_SIZE = 20;
 	const CELL_SPACING = 4;
 	const CELL_COLOR = '#f1f1f1';
+
+	// Used to extend body to connect head and tail
+	const GAP_SIZE = CELL_SPACING + 1; // Fill 1 extra to ensure overlap
 
 	const FOOD_RADIUS = (CELL_SIZE / 3.25).toFixed(2);
 	const FOOD_COLOR = '#ff5c75';
@@ -51,28 +55,59 @@
 
 	function svgPolylinePropsForSnakeBody(body: Point[]) {
 		const [head, tail] = [body[0], body[body.length - 1]];
-		const bodyCenterPoints = body
-			.filter((p) => {
-				// Don't draw body segments that overlap with head or tail
-				if (head.x == p.x && head.y == p.y) {
-					return false;
-				} else if (tail.x == p.x && tail.y == p.y) {
-					return false;
-				}
-				return true;
-			})
-			.map((p) => {
-				const { cx, cy } = svgCirclePropsAtPoint(p);
-				return `${cx},${cy}`;
-			});
 
-		// There's an edge case where a polyline with a single point
-		// doesn't render at all. We can fix this by duplicating that point.
-		if (bodyCenterPoints.length == 1) {
-			bodyCenterPoints.push(bodyCenterPoints[0]);
+		const bodyCenterPoints = [];
+		for (let i = 0; i < body.length; i++) {
+			const p = body[i];
+
+			// Ignore points that overlap with the head and tail
+			if (head.x == p.x && head.y == p.y) {
+				continue;
+			} else if (tail.x == p.x && tail.y == p.y) {
+				continue;
+			}
+
+			const { cx, cy } = svgCirclePropsAtPoint(p);
+			bodyCenterPoints.push({ cx: cx, cy: cy, x: p.x, y: p.y });
 		}
 
-		return { points: bodyCenterPoints.join(' ') };
+		// If we're drawing *any* body, we want to extend the first and last points
+		// to connect to the head and tail across the cell spacing.
+		if (bodyCenterPoints.length > 0) {
+			// Extend first point towards head
+			const first = bodyCenterPoints[0];
+			if (head.x > first.x) {
+				bodyCenterPoints.unshift({ cx: first.cx + GAP_SIZE, cy: first.cy, x: 0, y: 0 });
+			} else if (head.x < first.x) {
+				bodyCenterPoints.unshift({ cx: first.cx - GAP_SIZE, cy: first.cy, x: 0, y: 0 });
+			} else if (head.y > first.y) {
+				bodyCenterPoints.unshift({ cx: first.cx, cy: first.cy - GAP_SIZE, x: 0, y: 0 });
+			} else if (head.y < first.y) {
+				bodyCenterPoints.unshift({ cx: first.cx, cy: first.cy + GAP_SIZE, x: 0, y: 0 });
+			}
+
+			// Extend last point towards tail
+			const last = bodyCenterPoints[bodyCenterPoints.length - 1];
+			if (tail.x > last.x) {
+				bodyCenterPoints.push({ cx: last.cx + GAP_SIZE, cy: last.cy });
+			} else if (tail.x < last.x) {
+				bodyCenterPoints.push({ cx: last.cx - GAP_SIZE, cy: last.cy });
+			} else if (tail.y > last.y) {
+				bodyCenterPoints.push({ cx: last.cx, cy: last.cy - GAP_SIZE });
+			} else if (tail.y < last.y) {
+				bodyCenterPoints.push({ cx: last.cx, cy: last.cy + GAP_SIZE });
+			}
+		}
+
+		// Finally, translate to svg polyline attribute
+		const polylinePoints = bodyCenterPoints
+			.map((p) => {
+				return `${p.cx},${p.cy}`;
+			})
+			.join(' ');
+		return {
+			points: polylinePoints
+		};
 	}
 
 	function svgTransformForSnakeHead(snake: Snake): string {
