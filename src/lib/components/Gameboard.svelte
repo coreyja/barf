@@ -4,6 +4,7 @@
 
 	// Grid sizing
 	const CELL_SIZE = 20;
+	const CELL_SIZE_HALF = CELL_SIZE / 2;
 	const CELL_SPACING = 4;
 	const CELL_COLOR = '#f1f1f1';
 
@@ -48,12 +49,16 @@
 	function svgCirclePropsAtPoint(p: Point) {
 		const rect = svgRectPropsAtPoint(p);
 		return {
-			cx: rect.x + CELL_SIZE / 2,
-			cy: rect.y + CELL_SIZE / 2
+			cx: rect.x + CELL_SIZE_HALF,
+			cy: rect.y + CELL_SIZE_HALF
 		};
 	}
 
 	function svgPolylinePropsForSnakeBody(body: Point[]) {
+		const strokeWidth = CELL_SIZE;
+		const strokeLinejoin = 'round';
+		let strokeLinecap = 'square';
+
 		const [head, tail] = [body[0], body[body.length - 1]];
 
 		const bodyCenterPoints = [];
@@ -99,14 +104,43 @@
 			}
 		}
 
+		// If we're drawing no body, but head and tail are different,
+		// they still need to be connected.
+		if (bodyCenterPoints.length == 0) {
+			// We're only filling the spacing gap, so we need to
+			// stop the line at the given coordinates.
+			strokeLinecap = 'butt'; // lol.
+
+			if (head.x != tail.x || head.y != tail.y) {
+				const { cx, cy } = svgCirclePropsAtPoint(head);
+				if (head.x > tail.x) {
+					bodyCenterPoints.push({ cx: cx - CELL_SIZE_HALF + 1, cy: cy });
+					bodyCenterPoints.push({ cx: cx - CELL_SIZE_HALF - CELL_SPACING - 1, cy: cy });
+				} else if (head.x < tail.x) {
+					bodyCenterPoints.push({ cx: cx + CELL_SIZE_HALF - 1, cy: cy });
+					bodyCenterPoints.push({ cx: cx + CELL_SIZE_HALF + CELL_SPACING + 1, cy: cy });
+				} else if (head.y > tail.y) {
+					bodyCenterPoints.push({ cx: cx, cy: cy + CELL_SIZE_HALF - 1 });
+					bodyCenterPoints.push({ cx: cx, cy: cy + CELL_SIZE_HALF + CELL_SPACING + 1 });
+				} else if (head.y < tail.y) {
+					bodyCenterPoints.push({ cx: cx, cy: cy - CELL_SIZE_HALF + 1 });
+					bodyCenterPoints.push({ cx: cx, cy: cy - CELL_SIZE_HALF - CELL_SPACING - 1 });
+				}
+			}
+		}
+
 		// Finally, translate to svg polyline attribute
 		const polylinePoints = bodyCenterPoints
 			.map((p) => {
 				return `${p.cx},${p.cy}`;
 			})
 			.join(' ');
+
 		return {
-			points: polylinePoints
+			points: polylinePoints,
+			'stroke-width': strokeWidth,
+			'stroke-linecap': strokeLinecap,
+			'stroke-linejoin': strokeLinejoin
 		};
 	}
 
@@ -178,9 +212,6 @@
 		<g id={`snake-${snake.id}`} class="snake">
 			<!-- Body -->
 			<polyline
-				stroke-width={CELL_SIZE}
-				stroke-linecap="square"
-				stroke-linejoin="round"
 				stroke={snake.color}
 				fill="transparent"
 				{...svgPolylinePropsForSnakeBody(snake.body)}
