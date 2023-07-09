@@ -209,7 +209,7 @@
 
 	<!-- Snakes -->
 	{#each frame.snakes as snake}
-		<g id={`snake-${snake.id}`} class="snake">
+		<g id={`snake-${snake.id}`} class="snake {snake.isEliminated ? 'eliminated' : ''}">
 			<!-- Body -->
 			<polyline
 				stroke={snake.color}
@@ -271,3 +271,13 @@
 <p class="text-center">
 	Board: {frame.width} x {frame.height}, Turn: {frame.turn}, SVG: {svgWidth} x {svgHeight}
 </p>
+
+<style>
+	svg.gameboard .food,
+	svg.gameboard .snake {
+		filter: drop-shadow(0.1em 0.1em 0.05em rgba(0, 0, 0, 0.3));
+	}
+	svg.gameboard .snake.eliminated {
+		opacity: 0.1;
+	}
+</style>

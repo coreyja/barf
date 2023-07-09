@@ -14,7 +14,8 @@ export type Snake = {
     tail: string,
     health: number,
     latency: number,
-    body: Point[]
+    body: Point[],
+    isEliminated: boolean
 }
 
 export type Frame = {
@@ -48,9 +49,10 @@ function rawFrameEventToFrame(rawGameInfo, rawFrameEvent): Frame {
             head: rawSnake.HeadType,
             tail: rawSnake.TailType,
             // Frame specific
-            body: rawSnake.Body.map(rawCoordsToPoint),
             health: rawSnake.Health,
-            latency: rawSnake.Latency
+            latency: rawSnake.Latency,
+            body: rawSnake.Body.map(rawCoordsToPoint),
+            isEliminated: rawSnake.Death != null
         }
 
     }
@@ -74,25 +76,24 @@ export function loadGameStore(engineHost: string, gameID: string) {
     fetch(infoHttpUrl)
         .then((response) => response.json())
         .then((gameData) => {
-            // gameInfo.set(mapGameInfo(gameData.Game));
-
             console.debug(`[board] opening game events websocket`);
             const ws = new WebSocket(eventsWsUrl);
-            ws.onmessage = (event) => {
-                const parsedEvent = JSON.parse(event.data);
-                rawGameEvents.push(parsedEvent);
 
-                if (parsedEvent.Type === 'frame') {
+            ws.onmessage = (wsEvent) => {
+                const gameEvent = JSON.parse(wsEvent.data);
+                rawGameEvents.push(gameEvent);
+
+                if (gameEvent.Type === 'frame') {
                     gameFrames.update($gameFrames => {
                         $gameFrames.push(
-                            rawFrameEventToFrame(gameData.Game, parsedEvent)
+                            rawFrameEventToFrame(gameData.Game, gameEvent)
                         );
                         $gameFrames.sort(
                             (a: Frame, b: Frame) => a.turn - b.turn
                         );
                         return $gameFrames;
                     })
-                } else if (parsedEvent.Type === 'game_end') {
+                } else if (gameEvent.Type === 'game_end') {
                     console.debug('[board] closing game events websocket');
                     ws.close()
                 }
