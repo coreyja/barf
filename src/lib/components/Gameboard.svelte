@@ -17,6 +17,20 @@
 	$: svgWidth = CELL_SIZE * frame.width + CELL_SPACING * frame.width + CELL_SPACING;
 	$: svgHeight = CELL_SIZE * frame.height + CELL_SPACING * frame.height + CELL_SPACING;
 
+	function displayHead(snake: Snake): boolean {
+		// Snake heads are always shown
+		return true;
+	}
+
+	function displayTail(snake: Snake): boolean {
+		// Snake heads take priority
+		const [head, tail] = [snake.body[0], snake.body[snake.body.length - 1]];
+		if (head.x == tail.x && head.y == tail.y) {
+			return false;
+		}
+		return true;
+	}
+
 	function svgRectPropsAtPoint(p: Point) {
 		return {
 			// (x, y) should be the top left corner of the square
@@ -37,15 +51,36 @@
 
 	function svgPolylinePropsForSnakeBody(body: Point[]) {
 		const [head, tail] = [body[0], body[body.length - 1]];
-		const bodyCenterPoints = body.slice(1, -1).map((p) => {
-			const { cx, cy } = svgCirclePropsAtPoint(p);
-			return `${cx},${cy}`;
-		});
+		const bodyCenterPoints = body
+			.filter((p) => {
+				// Don't draw body segments that overlap with head or tail
+				if (head.x == p.x && head.y == p.y) {
+					return false;
+				} else if (tail.x == p.x && tail.y == p.y) {
+					return false;
+				}
+				return true;
+			})
+			.map((p) => {
+				const { cx, cy } = svgCirclePropsAtPoint(p);
+				return `${cx},${cy}`;
+			});
+
+		// There's an edge case where a polyline with a single point
+		// doesn't render at all. We can fix this by duplicating that point.
+		if (bodyCenterPoints.length == 1) {
+			bodyCenterPoints.push(bodyCenterPoints[0]);
+		}
+
 		return { points: bodyCenterPoints.join(' ') };
 	}
 
 	function svgTransformForSnakeHead(snake: Snake): string {
 		const [head, neck] = snake.body.slice(0, 2);
+
+		// Return transform based on relative position between neck and tail.
+		// Note that if the neck and tail overlap, we return the default (right).
+		// This is intended.
 		if (head.x < neck.x) {
 			// Moving left
 			return 'scale(-1,1) translate(-100, 0)';
@@ -61,7 +96,20 @@
 	}
 
 	function svgTransformForSnakeTail(snake: Snake): string {
-		const [preTail, tail] = snake.body.slice(-2);
+		const tailIndex = snake.body.length - 1;
+		const tail = snake.body[tailIndex];
+
+		// We need to work backwards from the tail until we reach a segment
+		// that doesn't overlap or is stacked.
+		let preTailIndex = tailIndex - 1;
+		let preTail = snake.body[preTailIndex];
+
+		while (preTail.x == tail.x && preTail.y == tail.y) {
+			preTailIndex -= 1;
+			preTail = snake.body[preTailIndex];
+		}
+
+		// Return transform based on relative location
 		if (preTail.x > tail.x) {
 			// Moving right
 			return 'scale(-1,1) translate(-100,0)';
@@ -102,26 +150,32 @@
 				fill="transparent"
 				{...svgPolylinePropsForSnakeBody(snake.body)}
 			/>
+
 			<!-- Head -->
-			<svg viewBox="0 0 100 100" fill={snake.color} {...svgRectPropsAtPoint(snake.body[0])}>
-				<g transform={svgTransformForSnakeHead(snake)}>
-					{#await fetchCustomizationSvgDef('head', snake.head) then headSvgDef}
-						{@html headSvgDef}
-					{/await}
-				</g>
-			</svg>
+			{#await fetchCustomizationSvgDef('head', snake.head) then headSvgDef}
+				{#if displayHead(snake)}
+					<svg viewBox="0 0 100 100" fill={snake.color} {...svgRectPropsAtPoint(snake.body[0])}>
+						<g transform={svgTransformForSnakeHead(snake)}>
+							{@html headSvgDef}
+						</g>
+					</svg>
+				{/if}
+			{/await}
+
 			<!-- Tail -->
-			<svg
-				viewBox="0 0 100 100"
-				fill={snake.color}
-				{...svgRectPropsAtPoint(snake.body[snake.body.length - 1])}
-			>
-				<g transform={svgTransformForSnakeTail(snake)}>
-					{#await fetchCustomizationSvgDef('tail', snake.tail) then tailSvgDef}
-						{@html tailSvgDef}
-					{/await}
-				</g>
-			</svg>
+			{#await fetchCustomizationSvgDef('tail', snake.tail) then tailSvgDef}
+				{#if displayTail(snake)}
+					<svg
+						viewBox="0 0 100 100"
+						fill={snake.color}
+						{...svgRectPropsAtPoint(snake.body[snake.body.length - 1])}
+					>
+						<g transform={svgTransformForSnakeTail(snake)}>
+							{@html tailSvgDef}
+						</g>
+					</svg>
+				{/if}
+			{/await}
 		</g>
 	{/each}
 
