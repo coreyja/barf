@@ -7,9 +7,8 @@
 	const CELL_SIZE_HALF = CELL_SIZE / 2;
 	const CELL_SPACING = 4;
 	const CELL_COLOR = '#f1f1f1';
-
-	// Used to extend body to connect head and tail
-	const GAP_SIZE = CELL_SPACING + 1; // Fill 1 extra to ensure overlap
+	// Used to extend snake body and ensure overlap with head and tail segments
+	const CELL_OVERLAP = 0.1;
 
 	const FOOD_RADIUS = (CELL_SIZE / 3.25).toFixed(2);
 	const FOOD_COLOR = '#ff5c75';
@@ -79,28 +78,31 @@
 		// If we're drawing *any* body, we want to extend the first and last points
 		// to connect to the head and tail across the cell spacing.
 		if (bodyCenterPoints.length > 0) {
+			// Use overlap to ensure that we connect to head and tail.
+			const gapSize = CELL_SPACING + CELL_OVERLAP;
+
 			// Extend first point towards head
 			const first = bodyCenterPoints[0];
 			if (head.x > first.x) {
-				bodyCenterPoints.unshift({ cx: first.cx + GAP_SIZE, cy: first.cy, x: 0, y: 0 });
+				bodyCenterPoints.unshift({ cx: first.cx + gapSize, cy: first.cy, x: 0, y: 0 });
 			} else if (head.x < first.x) {
-				bodyCenterPoints.unshift({ cx: first.cx - GAP_SIZE, cy: first.cy, x: 0, y: 0 });
+				bodyCenterPoints.unshift({ cx: first.cx - gapSize, cy: first.cy, x: 0, y: 0 });
 			} else if (head.y > first.y) {
-				bodyCenterPoints.unshift({ cx: first.cx, cy: first.cy - GAP_SIZE, x: 0, y: 0 });
+				bodyCenterPoints.unshift({ cx: first.cx, cy: first.cy - gapSize, x: 0, y: 0 });
 			} else if (head.y < first.y) {
-				bodyCenterPoints.unshift({ cx: first.cx, cy: first.cy + GAP_SIZE, x: 0, y: 0 });
+				bodyCenterPoints.unshift({ cx: first.cx, cy: first.cy + gapSize, x: 0, y: 0 });
 			}
 
 			// Extend last point towards tail
 			const last = bodyCenterPoints[bodyCenterPoints.length - 1];
 			if (tail.x > last.x) {
-				bodyCenterPoints.push({ cx: last.cx + GAP_SIZE, cy: last.cy });
+				bodyCenterPoints.push({ cx: last.cx + gapSize, cy: last.cy });
 			} else if (tail.x < last.x) {
-				bodyCenterPoints.push({ cx: last.cx - GAP_SIZE, cy: last.cy });
+				bodyCenterPoints.push({ cx: last.cx - gapSize, cy: last.cy });
 			} else if (tail.y > last.y) {
-				bodyCenterPoints.push({ cx: last.cx, cy: last.cy - GAP_SIZE });
+				bodyCenterPoints.push({ cx: last.cx, cy: last.cy - gapSize });
 			} else if (tail.y < last.y) {
-				bodyCenterPoints.push({ cx: last.cx, cy: last.cy + GAP_SIZE });
+				bodyCenterPoints.push({ cx: last.cx, cy: last.cy + gapSize });
 			}
 		}
 
@@ -114,17 +116,17 @@
 			if (head.x != tail.x || head.y != tail.y) {
 				const { cx, cy } = svgCirclePropsAtPoint(head);
 				if (head.x > tail.x) {
-					bodyCenterPoints.push({ cx: cx - CELL_SIZE_HALF + 1, cy: cy });
-					bodyCenterPoints.push({ cx: cx - CELL_SIZE_HALF - CELL_SPACING - 1, cy: cy });
+					bodyCenterPoints.push({ cx: cx - CELL_SIZE_HALF + CELL_OVERLAP, cy: cy });
+					bodyCenterPoints.push({ cx: cx - CELL_SIZE_HALF - CELL_SPACING - CELL_OVERLAP, cy: cy });
 				} else if (head.x < tail.x) {
-					bodyCenterPoints.push({ cx: cx + CELL_SIZE_HALF - 1, cy: cy });
-					bodyCenterPoints.push({ cx: cx + CELL_SIZE_HALF + CELL_SPACING + 1, cy: cy });
+					bodyCenterPoints.push({ cx: cx + CELL_SIZE_HALF - CELL_OVERLAP, cy: cy });
+					bodyCenterPoints.push({ cx: cx + CELL_SIZE_HALF + CELL_SPACING + CELL_OVERLAP, cy: cy });
 				} else if (head.y > tail.y) {
-					bodyCenterPoints.push({ cx: cx, cy: cy + CELL_SIZE_HALF - 1 });
-					bodyCenterPoints.push({ cx: cx, cy: cy + CELL_SIZE_HALF + CELL_SPACING + 1 });
+					bodyCenterPoints.push({ cx: cx, cy: cy + CELL_SIZE_HALF - CELL_OVERLAP });
+					bodyCenterPoints.push({ cx: cx, cy: cy + CELL_SIZE_HALF + CELL_SPACING + CELL_OVERLAP });
 				} else if (head.y < tail.y) {
-					bodyCenterPoints.push({ cx: cx, cy: cy - CELL_SIZE_HALF + 1 });
-					bodyCenterPoints.push({ cx: cx, cy: cy - CELL_SIZE_HALF - CELL_SPACING - 1 });
+					bodyCenterPoints.push({ cx: cx, cy: cy - CELL_SIZE_HALF + CELL_OVERLAP });
+					bodyCenterPoints.push({ cx: cx, cy: cy - CELL_SIZE_HALF - CELL_SPACING - CELL_OVERLAP });
 				}
 			}
 		}
