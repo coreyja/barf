@@ -42,7 +42,6 @@
 				continue;
 			}
 
-			// const { cx, cy } = calcSvgCenter(p);
 			const [cx, cy] = svgCalcCellCenter(svgCalcParams, p);
 			bodyCenterPoints.push({ cx: cx, cy: cy, x: p.x, y: p.y });
 		}
