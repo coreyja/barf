@@ -51,11 +51,11 @@
 		<p>Loading game data...</p>
 	{:else if currentFrame}
 		<div class="flex">
-			<div class="basis-3/5">
+			<div class="w-3/5">
 				<Gameboard frame={currentFrame} />
 				<PlaybackControls handlers={playbackHandlers} />
 			</div>
-			<div class="basis-2/5">
+			<div class="w-2/5">
 				<Scoreboard frame={currentFrame} />
 			</div>
 		</div>

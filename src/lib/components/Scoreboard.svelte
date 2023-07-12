@@ -12,18 +12,18 @@
 </script>
 
 <div class="scoreboard px-4 py-2">
-	<div class="flex flex-row font-bold">
+	<div class="flex flex-row font-bold text-lg">
 		<div class="basis-1/2 text-right">TURN</div>
 		<div class="basis-1/2 pl-2">{frame.turn}</div>
 	</div>
 	{#each sortedSnakes as snake}
 		<div class="p-2 cursor-pointer" class:text-gray-300={snake.isEliminated}>
-			<div class="flex flex-row text-lg font-bold">
-				<p class="grow">{snake.name}</p>
+			<div class="flex flex-row font-bold">
+				<p class="grow truncate">{snake.name}</p>
 				<p class="ps-4 text-right">{snake.length}</p>
 			</div>
 			<div class="flex flex-row mb-2 text-xs">
-				<p class="grow">by {snake.author}</p>
+				<p class="grow truncate">by {snake.author}</p>
 				<p class="text-right">{snake.latency}ms</p>
 			</div>
 			<div class="healthbar w-full bg-gray-200 rounded-full h-4">
