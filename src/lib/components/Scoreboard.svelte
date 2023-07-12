@@ -24,7 +24,7 @@
 			</div>
 			<div class="flex flex-row mb-2 text-xs">
 				<p class="grow truncate">by {snake.author}</p>
-				<p class="text-right">{snake.latency}ms</p>
+				<p class="text-right">{snake.latency ? `${snake.latency}ms` : ''}</p>
 			</div>
 			<div class="healthbar w-full bg-gray-200 rounded-full h-4">
 				{#if snake.health > 0}
