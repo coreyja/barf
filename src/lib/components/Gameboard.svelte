@@ -63,7 +63,3 @@
 		<SvgFood point={food} key={`${i}`} {svgCalcParams} />
 	{/each}
 </svg>
-
-<p class="text-center">
-	Board: {frame.width} x {frame.height}, Turn: {frame.turn}, SVG: {svgWidth} x {svgHeight}
-</p>

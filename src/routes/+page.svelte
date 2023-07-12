@@ -50,10 +50,14 @@
 	{#if !currentFrame}
 		<p>Loading game data...</p>
 	{:else if currentFrame}
-		<Gameboard frame={currentFrame} />
-		<hr />
-		<PlaybackControls handlers={playbackHandlers} />
-		<hr />
-		<Scoreboard frame={currentFrame} />
+		<div class="flex">
+			<div class="basis-3/5">
+				<Gameboard frame={currentFrame} />
+				<PlaybackControls handlers={playbackHandlers} />
+			</div>
+			<div class="basis-2/5">
+				<Scoreboard frame={currentFrame} />
+			</div>
+		</div>
 	{/if}
 </div>

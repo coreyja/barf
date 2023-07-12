@@ -15,6 +15,7 @@ export type Snake = {
     health: number,
     latency: number,
     body: Point[],
+    length: number,
     isEliminated: boolean
 }
 
@@ -52,6 +53,7 @@ function rawFrameEventToFrame(rawGameInfo, rawFrameEvent): Frame {
             health: rawSnake.Health,
             latency: rawSnake.Latency,
             body: rawSnake.Body.map(rawCoordsToPoint),
+            length: rawSnake.Body.length,
             isEliminated: rawSnake.Death != null
         }
 
