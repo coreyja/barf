@@ -2,8 +2,8 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 
-	import type { Frame } from '$lib/stores/game';
-	import { gameFrames, loadGameStore } from '$lib/stores/game';
+	import { type PlaybackHandlers, PlaybackState } from '$lib/playback';
+	import { type Frame, gameFrames, loadGameStore } from '$lib/stores/game';
 
 	import Gameboard from '$lib/components/Gameboard.svelte';
 	import PlaybackControls from '$lib/components/PlaybackControls.svelte';
@@ -34,10 +34,15 @@
 
 	// Load initial frame and svgs once game frames are ready
 	$: if (!currentFrame && $gameFrames.length > 0) {
+		// setPlaybackState(PlaybackState.PAUSED);
 		setCurrentFrame(0);
 	}
 
-	const playbackHandlers = {
+	let playbackState: PlaybackState = PlaybackState.PAUSED;
+
+	const playbackHandlers: PlaybackHandlers = {
+		play: function () {},
+		pause: function () {},
 		next: function () {
 			if (currentFrameIndex < $gameFrames.length - 1) {
 				setCurrentFrame(currentFrameIndex + 1);
@@ -66,7 +71,7 @@
 		<div class="flex">
 			<div class="w-3/5">
 				<Gameboard frame={currentFrame} />
-				<PlaybackControls handlers={playbackHandlers} />
+				<PlaybackControls state={playbackState} handlers={playbackHandlers} />
 			</div>
 			<div class="w-2/5">
 				<Scoreboard frame={currentFrame} />

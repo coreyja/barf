@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Point } from '$lib/stores/game';
-	import { type SvgCalcParams, svgCalcCellRect } from './svg-calculator';
+	import { type SvgCalcParams, svgCalcCellRect } from '../svg-calculator';
 
 	const HAZARD_COLOR = '#000000';
 	const HAZARD_OPACITY = 0.3;

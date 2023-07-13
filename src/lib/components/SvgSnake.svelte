@@ -2,7 +2,7 @@
 	import type { Point, Snake } from '$lib/stores/game';
 	import { fetchCustomizationSvgDef } from '$lib/stores/customizations';
 
-	import { type SvgCalcParams, svgCalcCellCenter, svgCalcCellRect } from './svg-calculator';
+	import { type SvgCalcParams, svgCalcCellCenter, svgCalcCellRect } from '../svg-calculator';
 
 	// Used to extend body segments to ensure overlap with head and tail
 	const OVERLAP = 0.1;

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Point } from '$lib/stores/game';
-	import { type SvgCalcParams, svgCalcCellCircle } from './svg-calculator';
+	import { type SvgCalcParams, svgCalcCellCircle } from '../svg-calculator';
 
 	export let key: string;
 	export let point: Point;

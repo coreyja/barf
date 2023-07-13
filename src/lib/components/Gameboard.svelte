@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Frame } from '$lib/stores/game';
-	import { type SvgCalcParams, svgCalcCellRect } from '$lib/components/svg-calculator';
+	import { type SvgCalcParams, svgCalcCellRect } from '$lib/svg-calculator';
 
 	import SvgHazard from './SvgHazard.svelte';
 	import SvgSnake from './SvgSnake.svelte';
