@@ -41,8 +41,12 @@
 	let playbackState: PlaybackState = PlaybackState.PAUSED;
 
 	const playbackHandlers: PlaybackHandlers = {
-		play: function () {},
-		pause: function () {},
+		play: function () {
+			playbackState = PlaybackState.PLAYING;
+		},
+		pause: function () {
+			playbackState = PlaybackState.PAUSED;
+		},
 		next: function () {
 			if (currentFrameIndex < $gameFrames.length - 1) {
 				setCurrentFrame(currentFrameIndex + 1);
