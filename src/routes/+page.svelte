@@ -106,5 +106,6 @@
 				<Scoreboard frame={currentFrame} />
 			</div>
 		</div>
+		<p class="mt-6 text-center"><a href="/settings">settings</a></p>
 	{/if}
 </div>
