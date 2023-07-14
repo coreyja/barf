@@ -36,7 +36,7 @@
 
 	const playbackHandlers: PlaybackHandlers = {
 		play: () => {
-			startPlayback(6, () => {
+			startPlayback(10, () => {
 				setCurrentFrame(currentFrameIndex + 1);
 				return true;
 			});

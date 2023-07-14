@@ -27,7 +27,7 @@
 				<p class="text-right">{snake.latency ? `${snake.latency}ms` : ''}</p>
 			</div>
 			<div class="healthbar w-full bg-gray-200 rounded-full h-4">
-				{#if snake.health > 0}
+				{#if !snake.isEliminated}
 					<div
 						class="transition-all h-full rounded-full ps-2 text-xs"
 						style="background: {snake.color}; width: {snake.health}%"
