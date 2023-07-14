@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 
 	import { keybind } from '$lib/keybind';
-	import { type PlaybackHandlers, PlaybackState } from '$lib/playback';
+	import { type PlaybackHandlers, PlaybackState, startPlayback, stopPlayback } from '$lib/playback';
 	import { type Frame, gameFrames, loadGameStore } from '$lib/stores/game';
 
 	import Gameboard from '$lib/components/Gameboard.svelte';
@@ -28,40 +28,58 @@
 	let currentFrameIndex = 0;
 
 	function setCurrentFrame(index: number) {
-		// TODO: DEEP COPY & TRANSFORM ???
 		currentFrame = $gameFrames[index];
 		currentFrameIndex = index;
-	}
-
-	// Load initial frame and svgs once game frames are ready
-	$: if (!currentFrame && $gameFrames.length > 0) {
-		// setPlaybackState(PlaybackState.PAUSED);
-		setCurrentFrame(0);
 	}
 
 	let playbackState: PlaybackState = PlaybackState.PAUSED;
 
 	const playbackHandlers: PlaybackHandlers = {
-		play: function () {
+		play: () => {
+			startPlayback(6, () => {
+				setCurrentFrame(currentFrameIndex + 1);
+				return true;
+			});
 			playbackState = PlaybackState.PLAYING;
 		},
-		pause: function () {
+		pause: () => {
+			stopPlayback();
 			playbackState = PlaybackState.PAUSED;
 		},
-		next: function () {
-			if (currentFrameIndex < $gameFrames.length - 1) {
-				setCurrentFrame(currentFrameIndex + 1);
+		next: () => {
+			if (playbackState == PlaybackState.PAUSED) {
+				if (currentFrameIndex < $gameFrames.length - 1) {
+					setCurrentFrame(currentFrameIndex + 1);
+				}
 			}
 		},
-		prev: function () {
-			if (currentFrameIndex > 0) {
-				setCurrentFrame(currentFrameIndex - 1);
+		prev: () => {
+			if (playbackState == PlaybackState.PAUSED) {
+				if (currentFrameIndex > 0) {
+					setCurrentFrame(currentFrameIndex - 1);
+				}
 			}
 		},
-		first: function () {
-			setCurrentFrame(0);
+		first: () => {
+			if (playbackState == PlaybackState.PAUSED) {
+				setCurrentFrame(0);
+			}
 		}
 	};
+
+	function togglePlayPause() {
+		if (playbackState == PlaybackState.PLAYING) {
+			playbackHandlers.pause();
+		} else if (playbackState == PlaybackState.PAUSED) {
+			playbackHandlers.play();
+		}
+	}
+
+	// Load initial frame and svgs once game frames are ready
+	$: if (!currentFrame && $gameFrames.length > 0) {
+		setCurrentFrame(0);
+		playbackState = PlaybackState.PAUSED;
+	}
 </script>
 
 <div>
@@ -78,6 +96,7 @@
 			use:keybind={{ key: 'r', f: playbackHandlers.first }}
 			use:keybind={{ key: 'right', f: playbackHandlers.next }}
 			use:keybind={{ key: 'left', f: playbackHandlers.prev }}
+			use:keybind={{ key: 'space', f: togglePlayPause }}
 		>
 			<div class="w-3/5">
 				<Gameboard frame={currentFrame} />
