@@ -61,7 +61,32 @@
 			setCurrentFrame(0);
 		}
 	};
+
+	function handleKeyDown(event) {
+		// TODO: Ignore keypress if modifiers are present
+
+		switch (event.key) {
+			case 'ArrowRight':
+				playbackHandlers.next();
+				event.preventDefault();
+				break;
+			case 'ArrowLeft':
+				playbackHandlers.prev();
+				event.preventDefault();
+				break;
+			case 'r':
+				playbackHandlers.first();
+				event.preventDefault();
+				break;
+			case ' ':
+				playbackHandlers.play();
+				event.preventDefault();
+				break;
+		}
+	}
 </script>
+
+<svelte:window on:keydown={handleKeyDown} />
 
 <div>
 	{#if error}
