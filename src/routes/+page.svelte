@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 
+	import { keybind } from '$lib/keybind';
 	import { type PlaybackHandlers, PlaybackState } from '$lib/playback';
 	import { type Frame, gameFrames, loadGameStore } from '$lib/stores/game';
 
@@ -61,32 +62,7 @@
 			setCurrentFrame(0);
 		}
 	};
-
-	function handleKeyDown(event) {
-		// TODO: Ignore keypress if modifiers are present
-
-		switch (event.key) {
-			case 'ArrowRight':
-				playbackHandlers.next();
-				event.preventDefault();
-				break;
-			case 'ArrowLeft':
-				playbackHandlers.prev();
-				event.preventDefault();
-				break;
-			case 'r':
-				playbackHandlers.first();
-				event.preventDefault();
-				break;
-			case ' ':
-				playbackHandlers.play();
-				event.preventDefault();
-				break;
-		}
-	}
 </script>
-
-<svelte:window on:keydown={handleKeyDown} />
 
 <div>
 	{#if error}
@@ -97,7 +73,12 @@
 	{:else if !currentFrame}
 		<p>Loading game data...</p>
 	{:else if currentFrame}
-		<div class="flex">
+		<div
+			class="flex"
+			use:keybind={[['r'], playbackHandlers.first]}
+			use:keybind={[['right'], playbackHandlers.next]}
+			use:keybind={[['left'], playbackHandlers.prev]}
+		>
 			<div class="w-3/5">
 				<Gameboard frame={currentFrame} />
 				<PlaybackControls state={playbackState} handlers={playbackHandlers} />
