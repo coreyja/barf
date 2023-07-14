@@ -1,9 +1,13 @@
 import Mousestrap from 'mousetrap';
 
+type Options = {
+    key: string,
+    f: () => void
+}
 
-export function keybind(node, options) {
+export function keybind(node, options: Options) {
     const mousetrap = new Mousestrap(window.document);
-    mousetrap.bind(options[0], options[1]);
+    mousetrap.bind([options.key], options.f);
 
     return {
         destroy() {

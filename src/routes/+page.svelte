@@ -75,9 +75,9 @@
 	{:else if currentFrame}
 		<div
 			class="flex"
-			use:keybind={[['r'], playbackHandlers.first]}
-			use:keybind={[['right'], playbackHandlers.next]}
-			use:keybind={[['left'], playbackHandlers.prev]}
+			use:keybind={{ key: 'r', f: playbackHandlers.first }}
+			use:keybind={{ key: 'right', f: playbackHandlers.next }}
+			use:keybind={{ key: 'left', f: playbackHandlers.prev }}
 		>
 			<div class="w-3/5">
 				<Gameboard frame={currentFrame} />
