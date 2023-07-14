@@ -6,6 +6,7 @@
 	import IconNext from '~icons/heroicons/chevron-right-solid';
 	import IconPrev from '~icons/heroicons/chevron-left-solid';
 	import IconFirst from '~icons/heroicons/chevron-double-left-solid';
+	import IconLast from '~icons/heroicons/chevron-double-right-solid';
 
 	export let handlers: PlaybackHandlers;
 	export let state: PlaybackState;
@@ -24,6 +25,9 @@
 		</button>
 		<button class="mx-2" on:click={handlers.next}>
 			<IconNext />
+		</button>
+		<button class="mx-2" on:click={handlers.next}>
+			<IconLast />
 		</button>
 	{/if}
 	{#if state == PlaybackState.PLAYING}
