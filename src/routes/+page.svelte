@@ -5,10 +5,13 @@
 	import { keybind } from '$lib/keybind';
 	import { type PlaybackHandlers, PlaybackState, startPlayback, stopPlayback } from '$lib/playback';
 	import { type Frame, gameFrames, loadGameStore } from '$lib/stores/game';
+	import { autoplay, fps } from '$lib/stores/settings';
 
 	import Gameboard from '$lib/components/Gameboard.svelte';
 	import PlaybackControls from '$lib/components/PlaybackControls.svelte';
 	import Scoreboard from '$lib/components/Scoreboard.svelte';
+
+	const AUTOPLAY_DELAY_MS = 1000;
 
 	onMount(async () => {
 		const engineHost = $page.url.searchParams.get('engine') || 'engine.battlesnake.com';
@@ -32,11 +35,17 @@
 		currentFrameIndex = index;
 	}
 
+	// Settings
+	$: settings = {
+		autoplay: $autoplay,
+		fps: $fps
+	};
+
 	let playbackState: PlaybackState = PlaybackState.PAUSED;
 
 	const playbackHandlers: PlaybackHandlers = {
 		play: () => {
-			startPlayback(10, () => {
+			startPlayback($fps, () => {
 				setCurrentFrame(currentFrameIndex + 1);
 				return true;
 			});
@@ -79,6 +88,9 @@
 	$: if (!currentFrame && $gameFrames.length > 0) {
 		setCurrentFrame(0);
 		playbackState = PlaybackState.PAUSED;
+		if (settings.autoplay) {
+			setTimeout(playbackHandlers.play, AUTOPLAY_DELAY_MS);
+		}
 	}
 </script>
 

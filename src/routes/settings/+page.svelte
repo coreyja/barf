@@ -1,36 +1,70 @@
-<h1>Settings</h1>
-<hr />
+<script lang="ts">
+	import { autoplay, fps } from '$lib/stores/settings';
 
-<label class="block">
-	<span>Playback Speed</span>
-	<select class="w-full">
-		<option>Slow</option>
-		<option>Medium</option>
-		<option>Fast</option>
-	</select>
-</label>
+	const playbackSpeedOptions = [
+		{ value: 3, text: 'Slow' },
+		{ value: 6, text: 'Medium' },
+		{ value: 12, text: 'Fast' }
+	];
 
-<label class="block">
-	<span>Theme</span>
-	<select class="w-full">
-		<option>Dark</option>
-		<option>Light</option>
-	</select>
-</label>
+	function navigateBack() {
+		history.back();
+	}
+</script>
 
-<label class="block">
-	<input type="checkbox" />
-	<span>Autoplay</span>
-</label>
+<div class="p-4 max-w-2xl mx-auto">
+	<h1 class="text-2xl font-bold">Settings</h1>
+	<hr class="mb-4" />
 
-<label class="block">
-	<input type="checkbox" />
-	<span>Frame Scrubber</span>
-</label>
+	<div class="mb-4">
+		<label class="block">
+			<p class="font-bold">Playback Speed</p>
+			<select class="w-full" bind:value={$fps}>
+				{#each playbackSpeedOptions as option}
+					<option value={option.value}>{option.text}</option>
+				{/each}
+			</select>
+		</label>
+	</div>
 
-<label class="block">
-	<input type="checkbox" />
-	<span>Board Coordinates</span>
-</label>
+	<!-- <div class="mb-4">
+		<label class="block">
+			<p class="font-bold">Theme</p>
+			<select class="w-full">
+				<option>Dark</option>
+				<option>Light</option>
+			</select>
+		</label>
+	</div> -->
 
-<p><a href="javascript:history.back()">Back</a></p>
+	<div class="mb-4">
+		<label class="inline-flex items-center">
+			<input type="checkbox" bind:checked={$autoplay} />
+			<span class="font-bold mx-2">Autoplay</span>
+		</label>
+		<p class="text-sm">All games will start playing as soon as the game loads.</p>
+	</div>
+
+	<!-- <div class="mb-4">
+		<label class="inline-flex items-center">
+			<input type="checkbox" />
+			<span class="font-bold mx-2">Display Board Coordinates</span>
+		</label>
+		<p class="text-sm">
+			Adds coordinate labels to the game board. These go from 0 to the width/height of the board to
+			make it easier to debug games.
+		</p>
+	</div> -->
+
+	<!-- <div class="mb-4">
+		<label class="inline-flex items-center">
+			<input type="checkbox" />
+			<span class="font-bold mx-2">Frame Scrubber</span>
+		</label>
+		<p class="text-sm">
+			Display progress bar that shows current frame and allows quickly jumping to specific frames.
+		</p>
+	</div> -->
+
+	<p><a on:click={navigateBack} href="/">Back</a></p>
+</div>
