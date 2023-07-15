@@ -22,6 +22,8 @@ export function startPlayback(fps: number, callback: () => boolean) {
         return;
     }
 
+    console.debug(`[board] starting playback at ${fps} fps`);
+
     const delayMS = 1000 / Math.ceil(fps);
     playbackInterval = setInterval(() => {
         const continuePlayback = callback();

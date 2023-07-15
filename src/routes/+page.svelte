@@ -13,9 +13,32 @@
 
 	const AUTOPLAY_DELAY_MS = 1000;
 
+	// URL Search Param Helpers
+	function getBoolFromURL(key: string, defaultValue: boolean): boolean {
+		const val = $page.url.searchParams.get(key);
+		if (val) {
+			return val === 'true';
+		}
+		return defaultValue;
+	}
+	function getIntFromURL(key: string, defaultValue: number): number {
+		const val = $page.url.searchParams.get(key);
+		if (val) {
+			return parseInt(val);
+		}
+		return defaultValue;
+	}
+	function getStringFromURL(key: string, defaultValue: string): string {
+		const val = $page.url.searchParams.get(key);
+		if (val) {
+			return val;
+		}
+		return defaultValue;
+	}
+
 	onMount(async () => {
-		const engineHost = $page.url.searchParams.get('engine') || 'engine.battlesnake.com';
-		const gameID: string = $page.url.searchParams.get('game') || '';
+		const engineHost = getStringFromURL('engine', 'engine.battlesnake.com');
+		const gameID: string = getStringFromURL('game', '');
 
 		if (engineHost.length == 0 || gameID.length == 0) {
 			error = true;
@@ -36,16 +59,17 @@
 	}
 
 	// Settings
+
 	$: settings = {
-		autoplay: $autoplay,
-		fps: $fps
+		autoplay: getBoolFromURL('autoplay', $autoplay),
+		fps: getIntFromURL('fps', $fps)
 	};
 
 	let playbackState: PlaybackState = PlaybackState.PAUSED;
 
 	const playbackHandlers: PlaybackHandlers = {
 		play: () => {
-			startPlayback($fps, () => {
+			startPlayback(settings.fps, () => {
 				setCurrentFrame(currentFrameIndex + 1);
 				return true;
 			});

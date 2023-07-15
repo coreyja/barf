@@ -9,7 +9,7 @@ export async function fetchCustomizationSvgDef(type: string, name: string) {
             .then((textSVG) => {
                 const tempElememt = document.createElement('template');
                 tempElememt.innerHTML = textSVG.trim()
-                console.log(`[board] loaded svg definition for ${mediaPath}`);
+                console.debug(`[board] loaded svg definition for ${mediaPath}`);
                 return tempElememt.content.firstChild.innerHTML;
             });
 

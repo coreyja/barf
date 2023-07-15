@@ -2,9 +2,9 @@
 	import { autoplay, fps } from '$lib/stores/settings';
 
 	const playbackSpeedOptions = [
-		{ value: 3, text: 'Slow' },
+		{ value: 2, text: 'Slow' },
 		{ value: 6, text: 'Medium' },
-		{ value: 12, text: 'Fast' }
+		{ value: 18, text: 'Fast' }
 	];
 
 	function navigateBack() {
