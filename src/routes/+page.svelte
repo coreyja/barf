@@ -5,7 +5,7 @@
 	import { keybind } from '$lib/keybind';
 	import { type PlaybackHandlers, PlaybackState, startPlayback, stopPlayback } from '$lib/playback';
 	import { type Frame, gameFrames, loadGameStore } from '$lib/stores/game';
-	import { autoplay, fps } from '$lib/stores/settings';
+	import { autoplay, fps, showCoords } from '$lib/stores/settings';
 
 	import Gameboard from '$lib/components/Gameboard.svelte';
 	import PlaybackControls from '$lib/components/PlaybackControls.svelte';
@@ -62,7 +62,8 @@
 
 	$: settings = {
 		autoplay: getBoolFromURL('autoplay', $autoplay),
-		fps: getIntFromURL('fps', $fps)
+		fps: getIntFromURL('fps', $fps),
+		showCoords: getBoolFromURL('showCoords', $showCoords)
 	};
 
 	let playbackState: PlaybackState = PlaybackState.PAUSED;
@@ -135,7 +136,7 @@
 			use:keybind={{ key: 'space', f: togglePlayPause }}
 		>
 			<div class="w-3/5">
-				<Gameboard frame={currentFrame} />
+				<Gameboard frame={currentFrame} showCoordinates={settings.showCoords} />
 				<PlaybackControls state={playbackState} handlers={playbackHandlers} />
 			</div>
 			<div class="w-2/5">

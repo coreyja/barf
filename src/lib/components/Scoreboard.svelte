@@ -11,7 +11,7 @@
 	});
 </script>
 
-<div class="scoreboard px-4 py-2">
+<div class="scoreboard px-4 pt-6">
 	<div class="flex flex-row font-bold text-lg">
 		<div class="basis-1/2 text-right">TURN</div>
 		<div class="basis-1/2 pl-2">{frame.turn}</div>

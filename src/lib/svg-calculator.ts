@@ -4,6 +4,7 @@ export type SvgCalcParams = {
     cellSize: number,
     cellSizeHalf: number,
     cellSpacing: number,
+    gridBorder: number,
     height: number,
     width: number
 }
@@ -15,8 +16,8 @@ export function svgCalcCellCenter(params: SvgCalcParams, p: Point): number[] {
 
 export function svgCalcCellTopLeft(params: SvgCalcParams, p: Point): number[] {
     return [
-        params.cellSpacing + p.x * (params.cellSize + params.cellSpacing),
-        params.height - (p.y + 1) * (params.cellSize + params.cellSpacing)
+        params.gridBorder + p.x * (params.cellSize + params.cellSpacing),
+        params.height - (params.gridBorder + p.y * (params.cellSize + params.cellSpacing) + params.cellSize)
     ]
 }
 
@@ -28,4 +29,20 @@ export function svgCalcCellCircle(params: SvgCalcParams, p: Point) {
 export function svgCalcCellRect(params: SvgCalcParams, p: Point) {
     const [x, y] = svgCalcCellTopLeft(params, p);
     return { x: x, y: y, width: params.cellSize, height: params.cellSize };
+}
+
+export function svgCalcCellLabelBottom(params: SvgCalcParams, p: Point) {
+    const [cx, cy] = svgCalcCellCenter(params, p)
+    return {
+        x: cx,
+        y: cy + params.cellSizeHalf + params.gridBorder / 2
+    }
+}
+
+export function svgCalcCellLabelLeft(params: SvgCalcParams, p: Point) {
+    const [cx, cy] = svgCalcCellCenter(params, p);
+    return {
+        x: cx - params.cellSizeHalf - params.gridBorder / 2,
+        y: cy
+    }
 }
