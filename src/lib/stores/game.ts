@@ -5,6 +5,12 @@ export type Point = {
     y: number
 }
 
+export type Elimination = {
+    turn: number
+    cause: string,
+    by: string
+}
+
 export type Snake = {
     id: string,
     name: string,
@@ -16,7 +22,8 @@ export type Snake = {
     latency: number,
     body: Point[],
     length: number,
-    isEliminated: boolean
+    isEliminated: boolean,
+    elimination: Elimination | null
 }
 
 export type Frame = {
@@ -54,9 +61,14 @@ function rawFrameEventToFrame(rawGameInfo, rawFrameEvent): Frame {
             latency: rawSnake.Latency,
             body: rawSnake.Body.map(rawCoordsToPoint),
             length: rawSnake.Body.length,
-            isEliminated: rawSnake.Death != null
+            // Elimination details
+            isEliminated: rawSnake.Death !== null,
+            elimination: rawSnake.Death ? {
+                turn: rawSnake.Death.Turn,
+                cause: rawSnake.Death.Cause,
+                by: rawSnake.Death.EliminatedBy
+            } : null
         }
-
     }
 
     return {
