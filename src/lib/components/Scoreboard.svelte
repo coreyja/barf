@@ -23,17 +23,19 @@
 		// See https://github.com/BattlesnakeOfficial/rules/blob/master/standard.go
 		switch (elimination.cause) {
 			case 'snake-collision':
-				return `Collided with body of ${snakeIdToName(elimination.by)}`;
+				return `Collided with body of ${snakeIdToName(elimination.by)} on turn ${elimination.turn}`;
 			case 'snake-self-collision':
-				return 'Collided with itself';
+				return `Collided with itself on turn ${elimination.turn}`;
 			case 'out-of-health':
-				return 'Out of health';
+				return `Ran out of health on turn ${elimination.turn}`;
 			case 'hazard':
-				return 'Eliminated by hazard';
+				return `Eliminated by hazard on turn ${elimination.turn}`;
 			case 'head-collision':
-				return `Lost head-to-head with ${snakeIdToName(elimination.by)}`;
+				return `Lost head-to-head with ${snakeIdToName(elimination.by)} on turn ${
+					elimination.turn
+				}`;
 			case 'wall-collision':
-				return 'Moved out of bounds';
+				return `Moved out of bounds on turn ${elimination.turn}`;
 			default:
 				return elimination.cause;
 		}
@@ -56,11 +58,11 @@
 				<p class="text-right">{snake.latency ? `${snake.latency}ms` : ''}</p>
 			</div>
 
-			<div class="h-4 text-xs">
+			<div class="h-4 text-xs mt-1">
 				{#if snake.isEliminated}
 					<p>{eliminationToString(snake.elimination)}</p>
 				{:else}
-					<div class="healthbar w-full h-full bg-gray-200 rounded-full mt-2">
+					<div class="healthbar w-full h-full bg-gray-200 rounded-full">
 						<div
 							class="transition-all h-full rounded-full text-white ps-2"
 							style="background: {snake.color}; width: {snake.health}%"
