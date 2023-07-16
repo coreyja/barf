@@ -47,7 +47,7 @@
 	</button>
 	<button
 		class="mx-2 disabled:text-gray-300"
-		on:click={handlers.next}
+		on:click={handlers.last}
 		disabled={disableDuringPlayback}
 	>
 		<IconLast />

@@ -10,7 +10,8 @@ export type PlaybackHandlers = {
     pause: PlaybackHandler,
     next: PlaybackHandler,
     prev: PlaybackHandler,
-    first: PlaybackHandler
+    first: PlaybackHandler,
+    last: PlaybackHandler
 }
 
 let playbackInterval: undefined | ReturnType<typeof setInterval>;

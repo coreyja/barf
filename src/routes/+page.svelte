@@ -87,21 +87,22 @@
 		},
 		next: () => {
 			if (playbackState == PlaybackState.PAUSED) {
-				if (currentFrameIndex < $gameFrames.length - 1) {
-					setCurrentFrame(currentFrameIndex + 1);
-				}
+				setCurrentFrame(currentFrameIndex + 1);
 			}
 		},
 		prev: () => {
 			if (playbackState == PlaybackState.PAUSED) {
-				if (currentFrameIndex > 0) {
-					setCurrentFrame(currentFrameIndex - 1);
-				}
+				setCurrentFrame(currentFrameIndex - 1);
 			}
 		},
 		first: () => {
 			if (playbackState == PlaybackState.PAUSED) {
 				setCurrentFrame(0);
+			}
+		},
+		last: () => {
+			if (playbackState == PlaybackState.PAUSED) {
+				setCurrentFrame($gameFrames.length - 1);
 			}
 		}
 	};
