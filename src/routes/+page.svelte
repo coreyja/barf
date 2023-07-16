@@ -125,30 +125,32 @@
 	}
 </script>
 
-<div>
-	{#if error}
-		<div class="text-center p-4">
-			<p class="mb-2 font-bold">To display a game specify engine and game parameters in the URL.</p>
-			<p>For example: {'https://board.battlesnake.com?engine=<ENGINE_HOST>&game=<GAME_ID>'}</p>
-		</div>
-	{:else if !currentFrame}
+{#if error}
+	<div class="text-center p-4">
+		<p class="mb-2 font-bold">To display a game specify engine and game parameters in the URL.</p>
+		<p>For example: {'https://board.battlesnake.com?engine=<ENGINE_HOST>&game=<GAME_ID>'}</p>
+	</div>
+{:else if !currentFrame}
+	<div class="text-center p-4">
 		<p>Loading game data...</p>
-	{:else if currentFrame}
-		<div
-			class="flex"
-			use:keybind={{ key: 'r', f: playbackHandlers.first }}
-			use:keybind={{ key: 'right', f: playbackHandlers.next }}
-			use:keybind={{ key: 'left', f: playbackHandlers.prev }}
-			use:keybind={{ key: 'space', f: togglePlayPause }}
-		>
-			<div class="w-3/5">
-				<Gameboard frame={currentFrame} showCoordinates={settings.showCoords} />
+	</div>
+{:else if currentFrame}
+	<div
+		class="h-screen w-full flex flex-row"
+		use:keybind={{ key: 'r', f: playbackHandlers.first }}
+		use:keybind={{ key: 'right', f: playbackHandlers.next }}
+		use:keybind={{ key: 'left', f: playbackHandlers.prev }}
+		use:keybind={{ key: 'space', f: togglePlayPause }}
+	>
+		<div class="w-3/5">
+			<Gameboard frame={currentFrame} showCoordinates={settings.showCoords} />
+			<div class="py-2">
 				<PlaybackControls state={playbackState} handlers={playbackHandlers} />
-			</div>
-			<div class="w-2/5">
-				<Scoreboard frame={currentFrame} />
+				<p class="text-xs text-center"><a href="/settings">settings</a></p>
 			</div>
 		</div>
-		<p class="mt-6 text-center"><a href="/settings">settings</a></p>
-	{/if}
-</div>
+		<div class="w-2/5 px-4 py-6">
+			<Scoreboard frame={currentFrame} />
+		</div>
+	</div>
+{/if}
