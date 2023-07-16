@@ -32,13 +32,14 @@ export type Frame = {
     height: number,
     snakes: Snake[],
     food: Point[],
-    hazards: Point[]
+    hazards: Point[],
+    gameOver: boolean,
 }
 
 
 const rawGameEvents = [];
 
-export const gameFrames = writable([]);
+export const gameFrames = writable<Frame[]>([]);
 
 function rawFrameEventToFrame(rawGameInfo, rawFrameEvent): Frame {
     console.assert(rawFrameEvent.Type === 'frame');
@@ -77,7 +78,8 @@ function rawFrameEventToFrame(rawGameInfo, rawFrameEvent): Frame {
         height: rawGameInfo.Height,
         snakes: rawFrameEvent.Data.Snakes.map(rawSnakeToSnake),
         food: rawFrameEvent.Data.Food.map(rawCoordsToPoint),
-        hazards: rawFrameEvent.Data.Hazards.map(rawCoordsToPoint)
+        hazards: rawFrameEvent.Data.Hazards.map(rawCoordsToPoint),
+        gameOver: false
     }
 };
 
@@ -106,10 +108,15 @@ export function loadGameStore(engineHost: string, gameID: string) {
                             (a: Frame, b: Frame) => a.turn - b.turn
                         );
                         return $gameFrames;
-                    })
+                    });
                 } else if (gameEvent.Type === 'game_end') {
                     console.debug('[board] closing game events websocket');
                     ws.close()
+
+                    gameFrames.update($gameFrames => {
+                        $gameFrames[$gameFrames.length - 1].gameOver = true;
+                        return $gameFrames;
+                    });
                 }
             }
         });

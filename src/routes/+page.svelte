@@ -53,13 +53,18 @@
 	let currentFrame: null | Frame = null;
 	let currentFrameIndex = 0;
 
-	function setCurrentFrame(index: number) {
+	function setCurrentFrame(i: number) {
+		const index = Math.min(Math.max(i, 0), $gameFrames.length - 1);
 		currentFrame = $gameFrames[index];
 		currentFrameIndex = index;
+
+		// Pause playback if this is the final frame
+		if (currentFrame.gameOver) {
+			playbackHandlers.pause();
+		}
 	}
 
 	// Settings
-
 	$: settings = {
 		autoplay: getBoolFromURL('autoplay', $autoplay),
 		fps: getIntFromURL('fps', $fps),
