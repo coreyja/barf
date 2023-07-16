@@ -1,5 +1,7 @@
 import { writable } from 'svelte/store';
 
+import ReconnectingWebSocket from 'reconnecting-websocket';
+
 export type Point = {
     x: number,
     y: number
@@ -37,7 +39,7 @@ export type Frame = {
 }
 
 
-const rawGameEvents = [];
+const rawFrameEvents = {};
 
 export const gameFrames = writable<Frame[]>([]);
 
@@ -93,22 +95,28 @@ export function loadGameStore(engineHost: string, gameID: string) {
         .then((response) => response.json())
         .then((gameData) => {
             console.debug(`[board] opening game events websocket`);
-            const ws = new WebSocket(eventsWsUrl);
+            const ws = new ReconnectingWebSocket(eventsWsUrl);
 
             ws.onmessage = (wsEvent) => {
                 const gameEvent = JSON.parse(wsEvent.data);
-                rawGameEvents.push(gameEvent);
 
                 if (gameEvent.Type === 'frame') {
-                    gameFrames.update($gameFrames => {
-                        $gameFrames.push(
-                            rawFrameEventToFrame(gameData.Game, gameEvent)
-                        );
-                        $gameFrames.sort(
-                            (a: Frame, b: Frame) => a.turn - b.turn
-                        );
-                        return $gameFrames;
-                    });
+                    const parsedFrame: Frame = rawFrameEventToFrame(gameData.Game, gameEvent);
+                    if (parsedFrame.turn in rawFrameEvents) {
+                        // We've already seen this frame, do nothing.
+                    } else {
+                        rawFrameEvents[parsedFrame.turn] = gameEvent;
+                        gameFrames.update($gameFrames => {
+                            $gameFrames.push(
+                                rawFrameEventToFrame(gameData.Game, gameEvent)
+                            );
+                            $gameFrames.sort(
+                                (a: Frame, b: Frame) => a.turn - b.turn
+                            );
+                            return $gameFrames;
+                        });
+                    }
+
                 } else if (gameEvent.Type === 'game_end') {
                     console.debug('[board] closing game events websocket');
                     ws.close()
