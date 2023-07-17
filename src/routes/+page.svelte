@@ -17,14 +17,18 @@
 	function getBoolFromURL(key: string, defaultValue: boolean): boolean {
 		const val = $page.url.searchParams.get(key);
 		if (val) {
-			return val === 'true';
+			if (val === 'true') return true;
+			if (val === 'false') return false;
 		}
 		return defaultValue;
 	}
 	function getIntFromURL(key: string, defaultValue: number): number {
 		const val = $page.url.searchParams.get(key);
 		if (val) {
-			return parseInt(val);
+			const parsedVal = parseInt(val);
+			if (!isNaN(parsedVal)) {
+				return parsedVal;
+			}
 		}
 		return defaultValue;
 	}
@@ -68,7 +72,9 @@
 	$: settings = {
 		autoplay: getBoolFromURL('autoplay', $autoplay),
 		fps: getIntFromURL('fps', $fps),
-		showCoords: getBoolFromURL('showCoords', $showCoords)
+		showCoords: getBoolFromURL('showCoords', $showCoords),
+		title: getStringFromURL('title', ''),
+		turn: getIntFromURL('turn', 0)
 	};
 
 	let playbackState: PlaybackState = PlaybackState.PAUSED;
@@ -116,8 +122,8 @@
 	}
 
 	// Load initial frame and svgs once game frames are ready
-	$: if (!currentFrame && $gameFrames.length > 0) {
-		setCurrentFrame(0);
+	$: if (!currentFrame && $gameFrames.length > settings.turn) {
+		setCurrentFrame(settings.turn);
 		playbackState = PlaybackState.PAUSED;
 		if (settings.autoplay) {
 			setTimeout(playbackHandlers.play, AUTOPLAY_DELAY_MS);
@@ -143,13 +149,16 @@
 		use:keybind={{ key: 'space', f: togglePlayPause }}
 	>
 		<div class="w-3/5">
+			{#if settings.title}
+				<h1 class="text-center font-bold text-2xl pt-2">{settings.title}</h1>
+			{/if}
 			<Gameboard frame={currentFrame} showCoordinates={settings.showCoords} />
 			<div class="py-2">
 				<PlaybackControls state={playbackState} handlers={playbackHandlers} />
 				<p class="text-xs text-center"><a href="/settings">settings</a></p>
 			</div>
 		</div>
-		<div class="w-2/5 px-4 py-6">
+		<div class="w-2/5 p-4">
 			<Scoreboard frame={currentFrame} />
 		</div>
 	</div>

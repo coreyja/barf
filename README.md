@@ -8,6 +8,10 @@ fps[int]: override playback speed preference with a specific fps value
 
 showCoords[true|false]: override preference to show coordinate labels on game board
 
+title[string]: optionally show a title above the board
+
+turn[int]: start playback on a specific turn
+
 
 ## Developing
 
