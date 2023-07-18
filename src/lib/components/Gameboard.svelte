@@ -31,7 +31,7 @@
 	} as SvgCalcParams;
 </script>
 
-<svg class="gameboard" viewBox="0 0 {svgWidth} {svgHeight}">
+<svg class="gameboard flex-shrink" viewBox="0 0 {svgWidth} {svgHeight}">
 	<!-- Grid -->
 	<SvgGrid
 		gridWidth={frame.width}

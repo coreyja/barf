@@ -148,7 +148,7 @@
 		use:keybind={{ key: 'left', f: playbackHandlers.prev }}
 		use:keybind={{ key: 'space', f: togglePlayPause }}
 	>
-		<div class="w-3/5">
+		<div class="w-3/5 flex flex-col">
 			{#if settings.title}
 				<h1 class="text-center font-bold text-2xl pt-2">{settings.title}</h1>
 			{/if}
